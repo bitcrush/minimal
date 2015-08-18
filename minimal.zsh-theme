@@ -17,7 +17,10 @@ LBRACKET="${PR_YELLOW}[$PR_RESET"
 RBRACKET="${PR_YELLOW}]$PR_RESET"
 
 function prompt_user() {
-    echo "%(!.$PR_RED.$PR_RESET)${PR_CHAR}$PR_RESET"
+    local sshconn=""
+    (( EUID == 0 )) && PR_USER=$PR_RED || PR_USER=$PR_GREEN
+    [[ -n "$SSH_CONNECTION" ]] && sshconn+="${PR_USER}%n${PR_RESET}@%M "
+    echo "${sshconn}%(!.$PR_RED.$PR_RESET)${PR_CHAR}$PR_RESET"
 }
 
 function prompt_jobs() {

@@ -28,6 +28,8 @@ Or, since it doesn't rely on any framework, you can always grab and source it.
 What does it shows?
 ===================
 Let's breakdown the left prompt (from left to right):
+- SSH connection:
+        - user@hostname if logged in via SSH
 - User privilege:
 	- red if root.
 	- green if not.
@@ -37,11 +39,12 @@ Let's breakdown the left prompt (from left to right):
 - Keymap indicator:
 	- magenta if in main or vi insert mode
 	- green if in vi command mode
-- Exit status:
-	- reset if last command returned 0.
-	- red if not.
 
 On the right prompt:
+- Separator
+- Exit Code:
+	- reset if last command returned 0.
+	- red if not.
 - The two last diretory from `pwd`.
 	- Directory names longer than 10 chars will be abbreviated if
 	`MINIMAL_SHORTEN` is set to `true`.  
