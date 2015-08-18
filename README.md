@@ -1,25 +1,22 @@
 M_N_M_L
 =======
-Here's a screenshot:
-
-![alt tag](https://raw.github.com/S1cK94/minimal/master/screen.jpg)
 
 Damn son! Show me teh codez!!
 =============================
 [Zgen](https://github.com/tarjoilija/zgen):
 ```
-zgen load S1cK94/minimal minimal
+zgen load bitcrush/minimal minimal
 ```
 
 [Antigen](https://github.com/zsh-users/antigen):
 ```
-antigen theme S1cK94/minimal minimal
+antigen theme bitcrush/minimal minimal
 ```
 
 [Oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh):
 ```
 cd path/to/ohmyzsh/custom/themes
-wget https://raw.github.com/S1cK94/minimal/master/minimal.zsh-theme
+wget https://raw.github.com/bitcrush/minimal/master/minimal.zsh-theme
 ```
 And set `ZSH_THEME="minimal"` somewhere in .zshrc.  
 Note that there is already a theme named *minimal* but themes under *custom*
@@ -32,16 +29,16 @@ What does it shows?
 ===================
 Let's breakdown the left prompt (from left to right):
 - User privilege:
-	- green if root.
-	- reset if not.
+	- red if root.
+	- green if not.
 - Background jobs:
-	- green if 1 or more jobs in background.
+	- blue if 1 or more jobs in background.
 	- reset if 0 jobs.
 - Keymap indicator:
-	- green if in main or vi insert mode
-	- reset if in vi command mode
+	- magenta if in main or vi insert mode
+	- green if in vi command mode
 - Exit status:
-	- green if last command returned 0.
+	- reset if last command returned 0.
 	- red if not.
 
 On the right prompt:
