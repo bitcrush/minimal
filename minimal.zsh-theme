@@ -2,34 +2,29 @@ autoload -U colors && colors
 
 setopt prompt_subst
 
-# PR_CHAR="❯"
-PR_CHAR=">"
+# pr_char="❯"
+pr_char=">"
 
-# prompt colors
-for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
-    eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
-done
-
-PR_RESET="%{$reset_color%}"
-
-RSEP="${PR_GREEN}<$PR_RESET"
-LBRACKET="${PR_YELLOW}[$PR_RESET"
-RBRACKET="${PR_YELLOW}]$PR_RESET"
+pr_green="%{$fg[green]%}"
+pr_red="%{$fg[red]%}"
+pr_blue="%{$fg[blue]%}"
+pr_yellow="%{$fg[yellow]%}"
+pr_magenta="%{$fg[magenta]%}"
+pr_reset="%{$reset_color%}"
 
 function prompt_user() {
     local sshconn=""
-    (( EUID == 0 )) && PR_USER=$PR_RED || PR_USER=$PR_GREEN
-    [[ -n "$SSH_CONNECTION" ]] && sshconn+="${PR_USER}%n${PR_RESET}@%M "
-    echo "${sshconn}%(!.$PR_RED.$PR_RESET)${PR_CHAR}$PR_RESET"
+    (( EUID == 0 )) && pr_user=$pr_red || pr_user=$pr_green
+    [[ -n "$SSH_CONNECTION" ]] && sshconn+="${pr_user}%n${pr_reset}@%M "
+    echo "${sshconn}%(!.$pr_red.$pr_reset)${pr_char}$pr_reset"
 }
 
 function prompt_jobs() {
-    echo "%(1j.$PR_BLUE.$PR_RESET)${PR_CHAR}$PR_RESET"
+    echo "%(1j.$pr_blue.$pr_reset)${pr_char}$pr_reset"
 }
 
 function prompt_status() {
-    # echo "${LBRACKET}%(0?.$PR_RESET.$PR_RED)%?$PR_RESET${RBRACKET}"
-    echo "%(0?.$PR_RESET.$PR_RED)%?$PR_RESET"
+    echo "%(0?.$pr_reset.$pr_red)%?$pr_reset"
 }
 
 function -prompt_ellipse(){
@@ -43,8 +38,8 @@ function -prompt_ellipse(){
 }
 
 function prompt_path() {
-    local path_color="$PR_MAGENTA"
-    local rsc="$PR_RESET"
+    local path_color="$pr_magenta"
+    local rsc="$pr_reset"
     local sep="$rsc/$path_color"
 
     echo "$path_color$(print -P %2~ | sed s_/_${sep}_g)$rsc"
@@ -59,22 +54,22 @@ function git_repo_status(){
     local rs="$(git status --porcelain -b)"
 
     if $(echo "$rs" | grep -v '^##' &> /dev/null); then # is dirty
-      echo "$PR_RED"
+      echo "$pr_red"
     elif $(echo "$rs" | grep '^## .*diverged' &> /dev/null); then # has diverged
-      echo "$PR_RED"
+      echo "$pr_red"
     elif $(echo "$rs" | grep '^## .*behind' &> /dev/null); then # is behind
-      echo "$PR_YELLOW"
+      echo "$pr_yellow"
     elif $(echo "$rs" | grep '^## .*ahead' &> /dev/null); then # is ahead
-      echo "$PR_RESET"
+      echo "$pr_reset"
     else # is clean
-      echo "$PR_GREEN"
+      echo "$pr_green"
     fi
 }
 
 function prompt_git() {
     local bname=$(git_branch_name)
     if [[ -n $bname ]]; then
-      local infos="$(git_repo_status)${bname}$PR_RESET"
+      local infos="$(git_repo_status)${bname}$pr_reset"
       echo " $infos"
     fi
 }
@@ -84,16 +79,33 @@ function prompt_vimode(){
 
     case $KEYMAP in
       main|viins)
-        ret+="$PR_GREEN"
+        ret+="$pr_green"
+        pr_char=">"
+        RSEP="${pr_green}<$pr_reset"
         ;;
       vicmd)
-        ret+="$PR_MAGENTA"
+        ret+="$pr_magenta"
+        pr_char="»"
+        RSEP="${pr_green}«$pr_reset"
         ;;
     esac
 
-    ret+="${PR_CHAR}$PR_RESET"
+    ret+="${pr_char}$pr_reset"
 
     echo "$ret"
+}
+
+function prompt_vimode_right(){
+    case $KEYMAP in
+      main|viins)
+        rsep="${pr_green}<$pr_reset"
+        ;;
+      vicmd)
+        rsep="${pr_magenta}«$pr_reset"
+        ;;
+    esac
+
+    echo "$rsep"
 }
 
 function zle-line-init zle-line-finish zle-keymap-select {
@@ -107,6 +119,6 @@ zle -N zle-line-finish
 
 # PROMPT='$(prompt_user)$(prompt_jobs)$(prompt_vimode)$(prompt_status) '
 PROMPT='$(prompt_user)$(prompt_jobs)$(prompt_vimode) '
-RPROMPT='$RSEP $(prompt_status) $(prompt_path)$(prompt_git)'
+RPROMPT='$(prompt_vimode_right) $(prompt_status) $(prompt_path)$(prompt_git)'
 
 # vim: ft=zsh
