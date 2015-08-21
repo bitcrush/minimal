@@ -25,7 +25,7 @@ function prompt_jobs() {
 }
 
 function prompt_status() {
-    echo "%(0?..${pr_cyan}[${pr_reset}%?${pr_cyan}]$pr_reset)"
+    echo "%(0?..${pr_cyan}[${pr_reset}%?${pr_cyan}] $pr_reset)"
 }
 
 function -prompt_ellipse(){
@@ -119,6 +119,6 @@ zle -N zle-keymap-select
 zle -N zle-line-finish
 
 PROMPT='$(prompt_user)$(prompt_jobs)$(prompt_vimode) '
-RPROMPT='$(prompt_vimode_right) $(prompt_status) $(prompt_path)$(prompt_git)'
+RPROMPT='$(prompt_vimode_right) $(prompt_status)$(prompt_path)$(prompt_git)'
 
 # vim: ft=zsh
