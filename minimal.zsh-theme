@@ -1,108 +1,104 @@
-autoload -U colors && colors
+## Minimal Zsh theme with Git and Vi mode indicators
 
+autoload -U colors && colors
 setopt prompt_subst
 
-# pr_char="❯"
-pr_char=">"
+PR_CHAR_L="${MINIMAL_PROMPT_CHAR_LEFT:-"❯"}"
+PR_CHAR_R="${MINIMAL_PROMPT_CHAR_RIGHT:-"❮"}"
+PR_CHAR_VI_L="${MINIMAL_PROMPT_CHAR_VI_LEFT:-"❮"}"
+PR_CHAR_VI_R="${MINIMAL_PROMPT_CHAR_VI_RIGHT:-"❯"}"
 
-pr_green="%{$fg[green]%}"
-pr_red="%{$fg[red]%}"
-pr_blue="%{$fg[blue]%}"
-pr_cyan="%{$fg[cyan]%}"
-pr_yellow="%{$fg[yellow]%}"
-pr_magenta="%{$fg[magenta]%}"
-pr_reset="%{$reset_color%}"
+PR_GREEN="%{$fg[green]%}"
+PR_RED="%{$fg[red]%}"
+PR_BLUE="%{$fg[blue]%}"
+PR_CYAN="%{$fg[cyan]%}"
+PR_YELLOW="%{$fg[yellow]%}"
+PR_MAGENTA="%{$fg[magenta]%}"
+PR_DEFAULT="%{$fg[${MINIMAL_ACCENT_COLOR:-green}]%}"
+PR_RESET="%{$reset_color%}"
 
 function prompt_user() {
-    local sshconn=""
-    (( EUID == 0 )) && pr_user=$pr_red || pr_user=$pr_green
-    [[ -n "$SSH_CONNECTION" ]] && sshconn+="${pr_user}%n${pr_reset}@%M "
-    echo "${sshconn}%(!.$pr_red.$pr_reset)${pr_char}$pr_reset"
+    local sshconn
+    local pr_user
+
+    (( EUID == 0 )) && pr_user=$PR_RED || pr_user=$PR_DEFAULT
+    [[ -n "$SSH_CONNECTION" ]] && sshconn+="${pr_user}%n${PR_RESET}@%m "
+    echo "${sshconn}%(!.$PR_RED.$PR_RESET)${PR_CHAR_L}${PR_RESET}"
 }
 
 function prompt_jobs() {
-    echo "%(1j.$pr_blue.$pr_reset)${pr_char}$pr_reset"
+    echo "%(1j.${PR_BLUE}.${PR_RESET})${PR_CHAR_L}${PR_RESET}"
 }
 
 function prompt_status() {
-    echo "%(0?..${pr_cyan}[${pr_reset}%?${pr_cyan}] $pr_reset)"
-}
-
-function -prompt_ellipse(){
-    local string=$1
-    local sep="$rsc..$path_color"
-    if [[ $MINIMAL_SHORTEN == true ]] && [[ ${#string} -gt 10 ]]; then
-      echo "${string:0:4}$sep${string: -4}"
-    else
-      echo $string
-    fi
+    echo "%(0?..${PR_CYAN}[${PR_RESET}%?${PR_CYAN}] ${PR_RESET})"
 }
 
 function prompt_path() {
-    local path_color="$pr_magenta"
-    local rsc="$pr_reset"
-    local sep="$rsc/$path_color"
-
-    echo "$path_color$(print -P %2~ | sed s_/_${sep}_g)$rsc"
+    echo "%{[38;5;244m%}%2~%{$reset_color%}"
 }
 
 function git_branch_name() {
     local branch_name="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
+
     [[ -n $branch_name ]] && echo "$branch_name"
 }
 
-function git_repo_status(){
+function git_repo_status() {
     local rs="$(git status --porcelain -b)"
 
     if $(echo "$rs" | grep -v '^##' &> /dev/null); then # is dirty
-      echo "$pr_red"
+      echo "$PR_RED"
     elif $(echo "$rs" | grep '^## .*diverged' &> /dev/null); then # has diverged
-      echo "$pr_red"
+      echo "$PR_RED"
     elif $(echo "$rs" | grep '^## .*behind' &> /dev/null); then # is behind
-      echo "$pr_yellow"
+      echo "$PR_YELLOW"
     elif $(echo "$rs" | grep '^## .*ahead' &> /dev/null); then # is ahead
-      echo "$pr_reset"
+      echo "$PR_RESET"
     else # is clean
-      echo "$pr_green"
+      echo "$PR_DEFAULT"
     fi
 }
 
 function prompt_git() {
     local bname=$(git_branch_name)
+    local infos
+
     if [[ -n $bname ]]; then
-      local infos="$(git_repo_status)${bname}$pr_reset"
+      infos="$(git_repo_status)${bname}${PR_RESET}"
       echo " $infos"
     fi
 }
 
-function prompt_vimode(){
+function prompt_vimode() {
     local ret=""
+    local pr_char
 
     case $KEYMAP in
-      main|viins)
-        ret+="$pr_green"
-        pr_char=">"
-        RSEP="${pr_green}<$pr_reset"
-        ;;
       vicmd)
-        ret+="$pr_magenta"
-        pr_char="»"
-        RSEP="${pr_green}«$pr_reset"
+        ret+="$PR_MAGENTA"
+        pr_char="$PR_CHAR_VI_L"
+        ;;
+      *)
+        ret+="$PR_DEFAULT"
+        pr_char="$PR_CHAR_L"
         ;;
     esac
 
-    ret+="${pr_char}$pr_reset"
+    ret+="${pr_char}${PR_RESET}"
 
     echo "$ret"
 }
 
-function prompt_vimode_right(){
+function prompt_vimode_right() {
+    local rsep=""
+
     case $KEYMAP in
-      main|viins)
-        rsep="${pr_green}<$pr_reset"
-        ;;
       vicmd)
-        rsep="${pr_magenta}«$pr_reset"
+        rsep="${PR_MAGENTA}${PR_CHAR_VI_R}${PR_RESET}"
+        ;;
+      *)
+        rsep="${PR_DEFAULT}${PR_CHAR_R}${PR_RESET}"
         ;;
     esac
 
