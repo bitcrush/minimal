@@ -17,6 +17,9 @@ PR_MAGENTA="%{$fg[magenta]%}"
 PR_DEFAULT="%{$fg[${MINIMAL_ACCENT_COLOR:-green}]%}"
 PR_RESET="%{$reset_color%}"
 
+# Unset virtualenv prompt
+export VIRTUAL_ENV_DISABLE_PROMPT=${VIRTUAL_ENV_DISABLE_PROMPT:-12}
+
 function prompt_user() {
     local sshconn
     local pr_user
@@ -42,6 +45,14 @@ function git_branch_name() {
     local branch_name="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
 
     [[ -n $branch_name ]] && echo "$branch_name"
+}
+
+function python_venv() {
+    local venv_name
+
+    if [[ -n "$VIRTUAL_ENV_PROMPT" ]]; then
+        echo "${PR_DEFAULT}[${PR_RESET}${VIRTUAL_ENV_PROMPT}${PR_DEFAULT}]${PR_RESET} "
+    fi
 }
 
 function git_repo_status() {
@@ -114,7 +125,7 @@ zle -N zle-line-init
 zle -N zle-keymap-select
 zle -N zle-line-finish
 
-PROMPT='$(prompt_user)$(prompt_jobs)$(prompt_vimode) '
+PROMPT='$(python_venv)$(prompt_user)$(prompt_jobs)$(prompt_vimode) '
 RPROMPT='$(prompt_vimode_right) $(prompt_status)$(prompt_path)$(prompt_git)'
 
 # vim: ft=zsh
